@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auto_attendance.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('faculty.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Automatic Attendance</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-camera me-2"></i>Automatic Attendance
+        </h1>
+        <p class="lead">Use facial recognition to automatically mark student attendance</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-primary">
+                        <i class="fas fa-video me-2"></i>Camera Feed
+                    </h4>
+                    <span class="badge bg-primary">
+                        {{ course.course_code }} - {{ course.name }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="camera-error" class="alert alert-danger d-none">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Unable to access camera. Please ensure camera permissions are granted and try again.
+                </div>
+                
+                <div class="camera-container mb-4">
+                    <video id="video-attendance" class="camera-feed" autoplay></video>
+                    <canvas id="canvas-attendance" class="d-none" width="640" height="480"></canvas>
+                </div>
+                
+                <div class="camera-buttons">
+                    <button type="button" id="capture-attendance-btn" class="btn btn-primary">
+                        <i class="fas fa-camera me-2"></i>Capture Attendance
+                    </button>
+                    <a href="{{ url_for('faculty.take_attendance', timetable_id=timetable.id) }}" class="btn btn-secondary">
+                        <i class="fas fa-list-check me-2"></i>View Attendance
+                    </a>
+                    <a href="{{ url_for('faculty.manual_attendance', timetable_id=timetable.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-2"></i>Manual Marking
+                    </a>
+                </div>
+                
+                <input type="hidden" id="timetable-id" value="{{ timetable.id }}">
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-info-circle me-2"></i>Session Info
+                </h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-0 ps-0">
+                        <div class="text-muted">Course</div>
+                        <div class="fw-bold">{{ course.course_code }} - {{ course.name }}</div>
+                    </li>
+                    <li class="list-group-item border-0 ps-0">
+                        <div class="text-muted">Time</div>
+                        <div class="fw-bold">{{ timetable.start_time.strftime('%H:%M') }} - {{ timetable.end_time.strftime('%H:%M') }}</div>
+                    </li>
+                    <li class="list-group-item border-0 ps-0">
+                        <div class="text-muted">Room</div>
+                        <div class="fw-bold">{{ timetable.room }}</div>
+                    </li>
+                    <li class="list-group-item border-0 ps-0">
+                        <div class="text-muted">Date</div>
+                        <div class="fw-bold">{{ now().strftime('%A, %B %d, %Y') }}</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-success bg-opacity-10">
+                <h4 class="mb-0 text-success">
+                    <i class="fas fa-user-check me-2"></i>Recognition Results
+                </h4>
+            </div>
+            <div class="card-body">
+                <div id="recognition-results">
+                    <div class="text-center py-4">
+                        <i class="fas fa-camera text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">No results yet</h5>
+                        <p>Capture attendance using the camera to see results here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auto_attendance.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize auto attendance functionality
+        initAutoAttendance();
+    });
+</script>
+{% endblock %}

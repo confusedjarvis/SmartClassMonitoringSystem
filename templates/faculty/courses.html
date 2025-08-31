@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>My Courses</h2>
+    
+    {% if courses %}
+        <div class="row">
+            {% for course_key, course_data in courses.items() %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">{{ course_data.course.name }} ({{ course_data.course.course_code }})</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <strong>Department:</strong> {{ course_data.course.department }}<br>
+                                <strong>Credits:</strong> {{ course_data.course.credits }}<br>
+                                <strong>Schedule:</strong>
+                            </p>
+                            <ul class="list-group mb-3">
+                                {% for schedule in course_data.schedule %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ schedule.day }} {{ schedule.start_time }} - {{ schedule.end_time }}</span>
+                                        <span class="badge bg-primary rounded-pill">Room: {{ schedule.room }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            
+                            <div class="d-grid gap-2">
+                                <!-- Use the ID from the first schedule item for Start Session -->
+                                {% if course_data.schedule|length > 0 %}
+                                    <a href="{{ url_for('faculty.start_session', timetable_id=course_data.schedule[0].id) }}" class="btn btn-primary">
+                                        <i class="fas fa-play me-2"></i>Start Session
+                                    </a>
+                                {% endif %}
+                                <a href="{{ url_for('faculty.attendance_report') }}?course_id={{ course_data.course.id }}" class="btn btn-info">
+                                    <i class="fas fa-chart-bar me-2"></i>View Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>You are not currently teaching any courses.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

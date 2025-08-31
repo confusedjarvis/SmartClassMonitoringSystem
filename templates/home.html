@@ -1,0 +1,209 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center mb-5">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-lg animated-card">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <div class="col-md-6 d-flex flex-column justify-content-center p-5 bg-gradient-primary text-white">
+                        <h1 class="display-4 fw-bold mb-3">Smart Attendance System</h1>
+                        <p class="lead mb-4">A sophisticated AI-powered platform for automated attendance tracking and student engagement monitoring.</p>
+                        <div class="mt-3">
+                            <i class="fas fa-check-circle me-2"></i> Face Recognition
+                            <i class="fas fa-check-circle ms-4 me-2"></i> Real-time Monitoring
+                            <i class="fas fa-check-circle ms-4 me-2"></i> Engagement Analytics
+                        </div>
+                    </div>
+                    <div class="col-md-6 p-5 text-center bg-white">
+                        <img src="{{ url_for('static', filename='images/attendance.svg') }}" alt="Attendance System" class="img-fluid mb-3" style="max-height: 250px;">
+                        <p class="text-muted">Select your user role to get started with the system</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mb-5">
+    <div class="col-lg-10">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <!-- Student Card -->
+            <div class="col">
+                <div class="card home-card h-100 border-0">
+                    <div class="card-body p-5 text-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-4">
+                            <i class="fas fa-user-graduate fs-1 text-primary"></i>
+                        </div>
+                        <h3 class="card-title mb-3">Student Portal</h3>
+                        <p class="card-text mb-4">Access your attendance records, course schedule, and performance analytics.</p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login as Student
+                            </a>
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-user-plus me-2"></i>Register as Student
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Faculty Card -->
+            <div class="col">
+                <div class="card home-card h-100 border-0">
+                    <div class="card-body p-5 text-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-4">
+                            <i class="fas fa-chalkboard-teacher fs-1 text-success"></i>
+                        </div>
+                        <h3 class="card-title mb-3">Faculty Portal</h3>
+                        <p class="card-text mb-4">Manage classes, track student attendance, and monitor engagement metrics.</p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-success">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login as Faculty
+                            </a>
+                            <a href="{{ url_for('auth.faculty_register') }}" class="btn btn-outline-success">
+                                <i class="fas fa-user-plus me-2"></i>Register as Faculty
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Card -->
+            <div class="col">
+                <div class="card home-card h-100 border-0">
+                    <div class="card-body p-5 text-center">
+                        <div class="rounded-circle bg-dark bg-opacity-10 p-3 d-inline-block mb-4">
+                            <i class="fas fa-user-shield fs-1 text-dark"></i>
+                        </div>
+                        <h3 class="card-title mb-3">Admin Portal</h3>
+                        <p class="card-text mb-4">Comprehensive administrative control over the entire attendance system.</p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('auth.admin_login') }}" class="btn btn-dark">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login as Admin
+                            </a>
+                        </div>
+                        <p class="small text-muted mt-3">
+                            <i class="fas fa-info-circle me-1"></i>Administrative access only
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-5">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="mb-4 text-gradient-primary">Powerful Features</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                                            <i class="fas fa-camera text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1">Facial Recognition</h5>
+                                        <p class="text-muted mb-0">Automated attendance tracking using advanced AI technology</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-success bg-opacity-10 p-2">
+                                            <i class="fas fa-chart-line text-success"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1">Analytics Dashboard</h5>
+                                        <p class="text-muted mb-0">Comprehensive insights into attendance patterns</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-info bg-opacity-10 p-2">
+                                            <i class="fas fa-clock text-info"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1">Real-time Tracking</h5>
+                                        <p class="text-muted mb-0">Instant attendance recording during classes</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-warning bg-opacity-10 p-2">
+                                            <i class="fas fa-mobile-alt text-warning"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-1">Phone Usage Detection</h5>
+                                        <p class="text-muted mb-0">Monitor student device engagement during class</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <a href="{{ url_for('main.about') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-info-circle me-2"></i>Learn More About Features
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center mt-4 mt-md-0">
+                        <div class="bg-light p-4 rounded-circle mx-auto" style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/ai.svg') }}" alt="AI Technology" class="img-fluid" style="max-width: 150px;">
+                        </div>
+                        <h4 class="mt-3">AI-Powered</h4>
+                        <p class="text-muted">Using cutting-edge facial recognition technology</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .animated-card {
+        animation: fadeIn 0.8s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #3f51b5, #5c6bc0);
+    }
+    
+    .text-gradient-primary {
+        background: linear-gradient(45deg, #3f51b5, #7986cb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .home-card {
+        transition: all 0.3s ease;
+    }
+    
+    .home-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

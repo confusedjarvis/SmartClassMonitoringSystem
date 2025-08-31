@@ -1,0 +1,218 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('faculty.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Attendance Reports</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-chart-bar me-2"></i>Attendance Reports
+        </h1>
+        <p class="lead">View and monitor student attendance for your courses</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-filter me-2"></i>Select Course
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('faculty.attendance_report') }}" class="row row-cols-lg-auto g-3 align-items-center">
+                    <div class="col-12">
+                        <label class="visually-hidden" for="course_id">Course</label>
+                        <select class="form-select" id="course_id" name="course_id">
+                            {% for course in courses %}
+                                <option value="{{ course.id }}" {% if course.id == selected_course_id %}selected{% endif %}>
+                                    {{ course.course_code }} - {{ course.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>View Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if selected_course_id %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-clipboard-list me-2"></i>Attendance for {{ course_name }}
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if attendance_data %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Roll Number</th>
+                                    <th>Present</th>
+                                    <th>Total Classes</th>
+                                    <th>Attendance %</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in attendance_data %}
+                                    <tr class="{% if data.low_attendance %}table-danger{% endif %}">
+                                        <td>{{ data.student_name }}</td>
+                                        <td>{{ data.roll_number }}</td>
+                                        <td>{{ data.present_count }}</td>
+                                        <td>{{ data.total_classes }}</td>
+                                        <td>{{ data.attendance_percentage|round|int }}%</td>
+                                        <td>
+                                            {% if data.attendance_percentage >= 75 %}
+                                                <span class="badge bg-success">Good</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Below Threshold</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('faculty.attendance_details', student_id=data.student_id, course_id=selected_course_id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye me-1"></i>Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-exclamation-circle text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">No attendance data available</h5>
+                        <p>There might be no students enrolled in this course or no attendance has been recorded yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-chart-pie me-2"></i>Attendance Overview
+                </h4>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Low Attendance Alert
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if attendance_data %}
+                    {% set total_students = attendance_data|length %}
+                    {% set low_attendance_students = attendance_data|selectattr("attendance_percentage", "lt", 75)|list %}
+                    {% set low_attendance_count = low_attendance_students|length %}
+                    
+                    {% if low_attendance_count > 0 %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>{{ low_attendance_count }}</strong> out of {{ total_students }} students have attendance below 75% threshold.
+                        </div>
+                        
+                        <ul class="list-group mt-3">
+                            {% for student in low_attendance_students %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ student.student_name }}</strong>
+                                        <small class="d-block text-muted">{{ student.roll_number }}</small>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-danger rounded-pill">{{ student.attendance_percentage|round|int }}%</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Great! All students have attendance above the 75% threshold.
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted">No data available for alerts</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if selected_course_id and attendance_data %}
+        // Prepare data for pie chart
+        {% set total_students = attendance_data|length %}
+        {% set good_attendance = attendance_data|selectattr("attendance_percentage", "ge", 75)|list|length %}
+        {% set poor_attendance = total_students - good_attendance %}
+        
+        var ctx = document.getElementById('attendanceChart').getContext('2d');
+        var attendanceChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Good Attendance (≥75%)', 'Below Threshold (<75%)'],
+                datasets: [{
+                    data: [{{ good_attendance }}, {{ poor_attendance }}],
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(231, 76, 60, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Attendance Distribution'
+                    }
+                }
+            }
+        });
+    {% endif %}
+});
+</script>
+{% endblock %}

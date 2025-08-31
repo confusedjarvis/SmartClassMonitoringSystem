@@ -1,0 +1,76 @@
+/* Admin Dashboard specific styles */
+
+/* Stat Card Styling */
+.card.border-start.border-5 {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+}
+
+.card.border-start.border-5:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+.card.border-start.border-5 .text-muted {
+    font-size: 0.8rem;
+    letter-spacing: 0.05rem;
+}
+
+/* Text colors */
+.text-gray-300 {
+    color: #dee2e6 !important;
+}
+
+.text-gray-800 {
+    color: #343a40 !important;
+}
+
+/* Admin dashboard title */
+.h3.text-gray-800 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* Dashboard header */
+.admin-dashboard-header {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    margin-bottom: 1.5rem;
+}
+
+/* Recent registrations */
+.list-group-item {
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: rgba(0,0,0,0.01);
+}
+
+/* Dashboard icons */
+.rounded-circle.bg-opacity-10 {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Make sure all action cards are same height */
+.row-cols-md-3 .card {
+    height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-text {
+        font-size: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 0.7rem;
+    }
+}

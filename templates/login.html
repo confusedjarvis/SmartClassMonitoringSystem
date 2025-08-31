@@ -1,0 +1,205 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-lg">
+            <div class="card-header py-4 text-center position-relative" style="overflow: hidden;">
+                <div class="bg-gradient-primary position-absolute" style="top: 0; left: 0; right: 0; height: 100%; opacity: 0.9;"></div>
+                <div class="position-relative">
+                    <h2 class="text-white mb-0 fw-bold">Welcome Back</h2>
+                    <p class="text-white-50 mb-0">Sign in to continue to your dashboard</p>
+                </div>
+            </div>
+            <div class="card-body p-5">
+                <div class="text-center mb-4 login-tabs">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary active" id="student-tab">
+                            <i class="fas fa-user-graduate me-1"></i> Student
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="faculty-tab">
+                            <i class="fas fa-chalkboard-teacher me-1"></i> Faculty
+                        </button>
+                    </div>
+                </div>
+                
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-4">
+                        <div class="form-floating">
+                            {% if form.email.errors %}
+                                {{ form.email(class="form-control is-invalid", placeholder="Email") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.email(class="form-control", placeholder="Email") }}
+                            {% endif %}
+                            <label for="email"><i class="fas fa-envelope me-2"></i>Email Address</label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-floating">
+                            {% if form.password.errors %}
+                                {{ form.password(class="form-control is-invalid", placeholder="Password") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.password(class="form-control", placeholder="Password") }}
+                            {% endif %}
+                            <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
+                        </div>
+                    </div>
+                    <div class="mb-4 form-check">
+                        {{ form.remember(class="form-check-input") }}
+                        {{ form.remember.label(class="form-check-label") }}
+                        <a href="{{ url_for('auth.forgot_password') }}" class="float-end text-decoration-none">Forgot Password?</a>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg", id="login-btn") }}
+                    </div>
+                </form>
+                
+                <div id="faculty-google-login" class="mt-4 text-center d-none">
+                    <div class="separator my-4">
+                        <span class="text-muted">OR</span>
+                    </div>
+                    <a href="{{ url_for('auth.google_login') }}" class="btn btn-light w-100 d-flex align-items-center justify-content-center">
+                        <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/google.svg" alt="Google" height="24" class="me-2">
+                        <span>Sign in with Google</span>
+                    </a>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <div class="row">
+                        <div class="col" id="register-link">
+                            <small class="text-muted">
+                                New student? <a href="{{ url_for('auth.register') }}" class="text-decoration-none text-primary fw-bold">Register Now</a>
+                            </small>
+                        </div>
+                        <div class="col d-none" id="faculty-register-link">
+                            <small class="text-muted">
+                                New faculty? <a href="{{ url_for('auth.faculty_register') }}" class="text-decoration-none text-success fw-bold">Register Now</a>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <a href="{{ url_for('auth.admin_login') }}" class="text-decoration-none text-dark">
+                                <i class="fas fa-user-shield me-1"></i>Admin Login
+                            </a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .separator {
+        display: flex;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .separator::before,
+    .separator::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .separator span {
+        padding: 0 10px;
+    }
+    
+    .form-floating label {
+        color: #6c757d;
+    }
+    
+    .form-control:focus {
+        border-color: #3f51b5;
+        box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
+    }
+    
+    .btn-primary {
+        background-color: #3f51b5;
+        border-color: #3f51b5;
+    }
+    
+    .btn-primary:hover {
+        background-color: #303f9f;
+        border-color: #303f9f;
+    }
+    
+    .btn-outline-primary {
+        color: #3f51b5;
+        border-color: #3f51b5;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #3f51b5;
+        border-color: #3f51b5;
+    }
+    
+    .login-tabs .btn {
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const studentTab = document.getElementById('student-tab');
+        const facultyTab = document.getElementById('faculty-tab');
+        const facultyGoogleLogin = document.getElementById('faculty-google-login');
+        const registerLink = document.getElementById('register-link');
+        const facultyRegisterLink = document.getElementById('faculty-register-link');
+        const loginBtn = document.getElementById('login-btn');
+        
+        studentTab.addEventListener('click', function() {
+            studentTab.classList.add('active');
+            studentTab.classList.remove('btn-outline-primary');
+            studentTab.classList.add('btn-primary');
+            
+            facultyTab.classList.remove('active');
+            facultyTab.classList.add('btn-outline-primary');
+            facultyTab.classList.remove('btn-primary');
+            
+            facultyGoogleLogin.classList.add('d-none');
+            registerLink.classList.remove('d-none');
+            facultyRegisterLink.classList.add('d-none');
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Student Login';
+            loginBtn.classList.remove('btn-success');
+            loginBtn.classList.add('btn-primary');
+        });
+        
+        facultyTab.addEventListener('click', function() {
+            facultyTab.classList.add('active');
+            facultyTab.classList.remove('btn-outline-primary');
+            facultyTab.classList.add('btn-primary');
+            
+            studentTab.classList.remove('active');
+            studentTab.classList.add('btn-outline-primary');
+            studentTab.classList.remove('btn-primary');
+            
+            facultyGoogleLogin.classList.remove('d-none');
+            registerLink.classList.add('d-none');
+            facultyRegisterLink.classList.remove('d-none');
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Faculty Login';
+            loginBtn.classList.remove('btn-primary');
+            loginBtn.classList.add('btn-success');
+        });
+    });
+</script>
+{% endblock %}

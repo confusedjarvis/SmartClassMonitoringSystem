@@ -1,0 +1,573 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Manage Courses</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold text-warning">
+            <i class="fas fa-book me-2"></i>Manage Courses
+        </h1>
+        <p class="lead">Add, view, and manage course offerings</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <div class="card-header bg-warning bg-opacity-10">
+                <h4 class="mb-0 text-warning">
+                    <i class="fas fa-plus-circle me-2"></i><span id="formTitle">Add New Course</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.courses') }}" id="courseForm">
+                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="course_id" id="course_id" value="">
+                    <input type="hidden" name="is_update" id="is_update" value="0">
+                    
+                    <div class="mb-3">
+                        {{ form.course_code.label(class="form-label") }}
+                        {% if form.course_code.errors %}
+                            {{ form.course_code(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.course_code.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.course_code(class="form-control", placeholder="e.g., CS101") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="form-control", placeholder="e.g., Introduction to Computer Science") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.credits.label(class="form-label") }}
+                        {% if form.credits.errors %}
+                            {{ form.credits(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.credits.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.credits(class="form-control", placeholder="e.g., 3") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.department.label(class="form-label") }}
+                        {% if form.department.errors %}
+                            {{ form.department(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.department.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.department(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.year.label(class="form-label") }}
+                        {% if form.year.errors %}
+                            {{ form.year(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.year.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.year(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="d-grid">
+                                {{ form.submit(class="btn btn-warning", id="submitBtn") }}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-secondary" id="cancelBtn" style="display: none;">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-warning bg-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-warning">
+                        <i class="fas fa-list me-2"></i>Course List
+                    </h4>
+                    <span class="badge bg-warning">Total: {{ courses.total }}</span>
+                </div>
+                <!-- Year filter tabs -->
+                <ul class="nav nav-pills mt-3" id="yearTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active btn-sm" id="all-years-tab" data-bs-toggle="pill" 
+                                data-bs-target="#all-years" type="button" role="tab" 
+                                aria-controls="all-years" aria-selected="true">
+                            All Years
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link btn-sm" id="year-1-tab" data-bs-toggle="pill" 
+                                data-bs-target="#year-1" type="button" role="tab" 
+                                aria-controls="year-1" aria-selected="false">
+                            Year 1
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link btn-sm" id="year-2-tab" data-bs-toggle="pill" 
+                                data-bs-target="#year-2" type="button" role="tab" 
+                                aria-controls="year-2" aria-selected="false">
+                            Year 2
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link btn-sm" id="year-3-tab" data-bs-toggle="pill" 
+                                data-bs-target="#year-3" type="button" role="tab" 
+                                aria-controls="year-3" aria-selected="false">
+                            Year 3
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link btn-sm" id="year-4-tab" data-bs-toggle="pill" 
+                                data-bs-target="#year-4" type="button" role="tab" 
+                                aria-controls="year-4" aria-selected="false">
+                            Year 4
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="yearTabsContent">
+                    <!-- All Years Tab -->
+                    <div class="tab-pane fade show active" id="all-years" role="tabpanel" aria-labelledby="all-years-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Name</th>
+                                        <th>Credits</th>
+                                        <th>Department</th>
+                                        <th>Year</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for course in courses.items %}
+                                        <tr>
+                                            <td><strong>{{ course.course_code }}</strong></td>
+                                            <td>{{ course.name }}</td>
+                                            <td>{{ course.credits }}</td>
+                                            <td>{{ course.department }}</td>
+                                            <td>{{ course.year }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary edit-course-btn" 
+                                                       data-id="{{ course.id }}"
+                                                       data-course-code="{{ course.course_code }}"
+                                                       data-name="{{ course.name }}"
+                                                       data-credits="{{ course.credits }}"
+                                                       data-department="{{ course.department }}"
+                                                       data-year="{{ course.year }}">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </button>
+                                                <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.id) }}" class="d-inline" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">
+                                                <i class="fas fa-book text-muted mb-3" style="font-size: 3rem;"></i>
+                                                <h5 class="text-muted">No courses found</h5>
+                                                <p>Add a new course using the form on the left</p>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if courses.pages > 1 %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if courses.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin.courses', page=courses.prev_num) }}">Previous</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#">Previous</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in courses.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                    {% if page_num %}
+                                        {% if courses.page == page_num %}
+                                            <li class="page-item active">
+                                                <a class="page-link" href="{{ url_for('admin.courses', page=page_num) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('admin.courses', page=page_num) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if courses.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin.courses', page=courses.next_num) }}">Next</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#">Next</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Year 1 Tab -->
+                    <div class="tab-pane fade" id="year-1" role="tabpanel" aria-labelledby="year-1-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Name</th>
+                                        <th>Credits</th>
+                                        <th>Department</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% set year1_courses = [] %}
+                                    {% for course in courses.items %}
+                                        {% if course.year == 1 %}
+                                            {% set _ = year1_courses.append(course) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% for course in year1_courses %}
+                                        <tr>
+                                            <td><strong>{{ course.course_code }}</strong></td>
+                                            <td>{{ course.name }}</td>
+                                            <td>{{ course.credits }}</td>
+                                            <td>{{ course.department }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary edit-course-btn" 
+                                                       data-id="{{ course.id }}"
+                                                       data-course-code="{{ course.course_code }}"
+                                                       data-name="{{ course.name }}"
+                                                       data-credits="{{ course.credits }}"
+                                                       data-department="{{ course.department }}"
+                                                       data-year="{{ course.year }}">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </button>
+                                                <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.id) }}" class="d-inline" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">
+                                                <i class="fas fa-book text-muted mb-3" style="font-size: 3rem;"></i>
+                                                <h5 class="text-muted">No Year 1 courses found</h5>
+                                                <p>Add a new Year 1 course using the form on the left</p>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Year 2 Tab -->
+                    <div class="tab-pane fade" id="year-2" role="tabpanel" aria-labelledby="year-2-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Name</th>
+                                        <th>Credits</th>
+                                        <th>Department</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% set year2_courses = [] %}
+                                    {% for course in courses.items %}
+                                        {% if course.year == 2 %}
+                                            {% set _ = year2_courses.append(course) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% for course in year2_courses %}
+                                        <tr>
+                                            <td><strong>{{ course.course_code }}</strong></td>
+                                            <td>{{ course.name }}</td>
+                                            <td>{{ course.credits }}</td>
+                                            <td>{{ course.department }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary edit-course-btn" 
+                                                       data-id="{{ course.id }}"
+                                                       data-course-code="{{ course.course_code }}"
+                                                       data-name="{{ course.name }}"
+                                                       data-credits="{{ course.credits }}"
+                                                       data-department="{{ course.department }}"
+                                                       data-year="{{ course.year }}">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </button>
+                                                <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.id) }}" class="d-inline" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">
+                                                <i class="fas fa-book text-muted mb-3" style="font-size: 3rem;"></i>
+                                                <h5 class="text-muted">No Year 2 courses found</h5>
+                                                <p>Add a new Year 2 course using the form on the left</p>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Year 3 Tab -->
+                    <div class="tab-pane fade" id="year-3" role="tabpanel" aria-labelledby="year-3-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Name</th>
+                                        <th>Credits</th>
+                                        <th>Department</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% set year3_courses = [] %}
+                                    {% for course in courses.items %}
+                                        {% if course.year == 3 %}
+                                            {% set _ = year3_courses.append(course) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% for course in year3_courses %}
+                                        <tr>
+                                            <td><strong>{{ course.course_code }}</strong></td>
+                                            <td>{{ course.name }}</td>
+                                            <td>{{ course.credits }}</td>
+                                            <td>{{ course.department }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary edit-course-btn" 
+                                                       data-id="{{ course.id }}"
+                                                       data-course-code="{{ course.course_code }}"
+                                                       data-name="{{ course.name }}"
+                                                       data-credits="{{ course.credits }}"
+                                                       data-department="{{ course.department }}"
+                                                       data-year="{{ course.year }}">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </button>
+                                                <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.id) }}" class="d-inline" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">
+                                                <i class="fas fa-book text-muted mb-3" style="font-size: 3rem;"></i>
+                                                <h5 class="text-muted">No Year 3 courses found</h5>
+                                                <p>Add a new Year 3 course using the form on the left</p>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Year 4 Tab -->
+                    <div class="tab-pane fade" id="year-4" role="tabpanel" aria-labelledby="year-4-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Name</th>
+                                        <th>Credits</th>
+                                        <th>Department</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% set year4_courses = [] %}
+                                    {% for course in courses.items %}
+                                        {% if course.year == 4 %}
+                                            {% set _ = year4_courses.append(course) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% for course in year4_courses %}
+                                        <tr>
+                                            <td><strong>{{ course.course_code }}</strong></td>
+                                            <td>{{ course.name }}</td>
+                                            <td>{{ course.credits }}</td>
+                                            <td>{{ course.department }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary edit-course-btn" 
+                                                       data-id="{{ course.id }}"
+                                                       data-course-code="{{ course.course_code }}"
+                                                       data-name="{{ course.name }}"
+                                                       data-credits="{{ course.credits }}"
+                                                       data-department="{{ course.department }}"
+                                                       data-year="{{ course.year }}">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </button>
+                                                <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.id) }}" class="d-inline" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">
+                                                <i class="fas fa-book text-muted mb-3" style="font-size: 3rem;"></i>
+                                                <h5 class="text-muted">No Year 4 courses found</h5>
+                                                <p>Add a new Year 4 course using the form on the left</p>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Edit Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle edit button clicks
+    const editButtons = document.querySelectorAll('.edit-course-btn');
+    const courseForm = document.getElementById('courseForm');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const courseIdInput = document.getElementById('course_id');
+    const isUpdateInput = document.getElementById('is_update');
+    
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Get course data from data attributes
+            const id = this.getAttribute('data-id');
+            const courseCode = this.getAttribute('data-course-code');
+            const name = this.getAttribute('data-name');
+            const credits = this.getAttribute('data-credits');
+            const department = this.getAttribute('data-department');
+            const year = this.getAttribute('data-year');
+            
+            // Set form fields
+            document.getElementById('course_code').value = courseCode;
+            document.getElementById('name').value = name;
+            document.getElementById('credits').value = credits;
+            document.getElementById('department').value = department;
+            document.getElementById('year').value = year;
+            
+            // Set hidden fields
+            courseIdInput.value = id;
+            isUpdateInput.value = '1';
+            
+            // Update UI
+            formTitle.textContent = 'Update Course';
+            submitBtn.textContent = 'Update Course';
+            submitBtn.classList.replace('btn-warning', 'btn-primary');
+            cancelBtn.style.display = 'block';
+            
+            // Scroll to form
+            document.querySelector('.card-header').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+    
+    // Handle cancel button
+    cancelBtn.addEventListener('click', function() {
+        // Reset form
+        courseForm.reset();
+        
+        // Reset hidden fields
+        courseIdInput.value = '';
+        isUpdateInput.value = '0';
+        
+        // Update UI
+        formTitle.textContent = 'Add New Course';
+        submitBtn.textContent = 'Add Course';
+        submitBtn.classList.replace('btn-primary', 'btn-warning');
+        cancelBtn.style.display = 'none';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-lg">
+            <div class="card-header py-4 text-center position-relative" style="overflow: hidden;">
+                <div class="bg-dark position-absolute" style="top: 0; left: 0; right: 0; height: 100%; opacity: 0.9;"></div>
+                <div class="position-relative">
+                    <h2 class="text-white mb-0 fw-bold">Administrator Access</h2>
+                    <p class="text-white-50 mb-0">Sign in to access administrator controls</p>
+                </div>
+            </div>
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-dark bg-opacity-10 p-4 d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                        <i class="fas fa-user-shield fs-1 text-dark"></i>
+                    </div>
+                </div>
+                
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-4">
+                        <div class="form-floating">
+                            {% if form.email.errors %}
+                                {{ form.email(class="form-control is-invalid", placeholder="Email") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.email(class="form-control", placeholder="Email") }}
+                            {% endif %}
+                            <label for="email"><i class="fas fa-envelope me-2"></i>Admin Email</label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-floating">
+                            {% if form.password.errors %}
+                                {{ form.password(class="form-control is-invalid", placeholder="Password") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.password(class="form-control", placeholder="Password") }}
+                            {% endif %}
+                            <label for="password"><i class="fas fa-lock me-2"></i>Admin Password</label>
+                        </div>
+                    </div>
+                    <div class="mb-4 form-check">
+                        {{ form.remember(class="form-check-input") }}
+                        {{ form.remember.label(class="form-check-label") }}
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-dark btn-lg") }}
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="alert alert-info border-0 bg-info bg-opacity-10">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-info fs-5"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="fw-bold mb-1">Default Admin Credentials</h6>
+                            <p class="mb-0">Email: admin@example.com<br>Password: admin123</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <small class="text-muted">
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none text-dark">
+                            <i class="fas fa-arrow-left me-1"></i>Return to regular login
+                        </a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .form-floating label {
+        color: #6c757d;
+    }
+    
+    .form-control:focus {
+        border-color: #343a40;
+        box-shadow: 0 0 0 0.25rem rgba(52, 58, 64, 0.25);
+    }
+    
+    .alert {
+        border-radius: 0.5rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>My Courses</h2>
+    
+    {% if courses %}
+        <div class="row">
+            {% for course in courses %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.course_name }} ({{ course.course_code }})</h5>
+                            <p class="card-text">
+                                <strong>Department:</strong> {{ course.department }}<br>
+                                <strong>Credits:</strong> {{ course.credits }}<br>
+                                <strong>Schedule:</strong><br>
+                                {% for schedule in course.schedule %}
+                                    {{ schedule.day }} {{ schedule.start_time }} - {{ schedule.end_time }} (Room: {{ schedule.room }})<br>
+                                {% endfor %}
+                            </p>
+                            <a href="{{ url_for('student.attendance') }}?course_id={{ course.course_id }}" class="btn btn-info">VIEW ATTENDANCE</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You are not enrolled in any courses yet.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

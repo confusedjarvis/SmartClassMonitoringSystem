@@ -1,0 +1,188 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-4 d-inline-block mb-3">
+                            <i class="fas fa-camera fa-3x text-primary"></i>
+                        </div>
+                        <h2 class="text-gradient-primary">Update Face Data</h2>
+                        <p class="text-muted">Position your face in the center of the camera and take a clear photo</p>
+                    </div>
+
+                    <div class="camera-container mb-4">
+                        <div class="video-container rounded-3 overflow-hidden mb-3">
+                            <video id="video" class="w-100" playsinline autoplay></video>
+                        </div>
+                        <canvas id="canvas" style="display: none;"></canvas>
+                        <div class="d-grid gap-2">
+                            <button id="capture" class="btn btn-primary btn-lg">
+                                <i class="fas fa-camera me-2"></i>Capture Photo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="preview-container" class="text-center mb-4" style="display: none;">
+                        <h4 class="mb-3">Preview</h4>
+                        <img id="preview" class="rounded-3 mb-3" style="max-width: 100%; height: auto;">
+                        <div class="d-grid gap-2">
+                            <button id="retake" class="btn btn-outline-secondary">
+                                <i class="fas fa-redo me-2"></i>Retake Photo
+                            </button>
+                            <button id="save" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Save Face Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="status-message" class="alert" style="display: none;"></div>
+
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('student.profile') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let video = document.getElementById('video');
+    let canvas = document.getElementById('canvas');
+    let preview = document.getElementById('preview');
+    let captureBtn = document.getElementById('capture');
+    let retakeBtn = document.getElementById('retake');
+    let saveBtn = document.getElementById('save');
+    let previewContainer = document.getElementById('preview-container');
+    let cameraContainer = document.querySelector('.camera-container');
+    let statusMessage = document.getElementById('status-message');
+    let stream = null;
+
+    // Start video stream
+    async function startVideo() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                } 
+            });
+            video.srcObject = stream;
+        } catch (err) {
+            console.error('Error accessing camera:', err);
+            showStatus('Error accessing camera. Please make sure your camera is connected and you have granted permission.', 'danger');
+        }
+    }
+
+    // Initialize camera when page loads
+    startVideo();
+
+    // Capture photo
+    captureBtn.addEventListener('click', function() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        preview.src = canvas.toDataURL('image/jpeg');
+        
+        cameraContainer.style.display = 'none';
+        previewContainer.style.display = 'block';
+    });
+
+    // Retake photo
+    retakeBtn.addEventListener('click', function() {
+        previewContainer.style.display = 'none';
+        cameraContainer.style.display = 'block';
+        statusMessage.style.display = 'none';
+    });
+
+    // Save face data
+    saveBtn.addEventListener('click', async function() {
+        try {
+            showStatus('Processing...', 'info');
+            saveBtn.disabled = true;
+            retakeBtn.disabled = true;
+
+            const response = await fetch("{{ url_for('student.update_face_data') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image_data: canvas.toDataURL('image/jpeg')
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                showStatus(result.message, 'success');
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('student.profile') }}";
+                }, 2000);
+            } else {
+                showStatus(result.message, 'danger');
+                saveBtn.disabled = false;
+                retakeBtn.disabled = false;
+            }
+        } catch (err) {
+            console.error('Error saving face data:', err);
+            showStatus('Error saving face data. Please try again.', 'danger');
+            saveBtn.disabled = false;
+            retakeBtn.disabled = false;
+        }
+    });
+
+    function showStatus(message, type) {
+        statusMessage.textContent = message;
+        statusMessage.className = `alert alert-${type}`;
+        statusMessage.style.display = 'block';
+    }
+
+    // Clean up video stream when leaving page
+    window.addEventListener('beforeunload', function() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    });
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .text-gradient-primary {
+        background: linear-gradient(45deg, #3f51b5, #7986cb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .video-container {
+        background-color: #000;
+        aspect-ratio: 4/3;
+    }
+
+    video {
+        transform: scaleX(-1); /* Mirror the video */
+    }
+
+    #preview {
+        transform: scaleX(-1); /* Mirror the preview */
+        max-height: 480px;
+        width: auto;
+    }
+
+    .camera-container {
+        max-width: 640px;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %} 

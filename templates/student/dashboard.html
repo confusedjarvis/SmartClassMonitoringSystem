@@ -1,0 +1,217 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>Student Dashboard
+        </h1>
+        <p class="lead">Welcome back, {{ current_user.name }}!</p>
+    </div>
+</div>
+
+<!-- Overall Attendance Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-chart-pie me-2"></i>Overall Attendance
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="progress-circle mx-auto position-relative" style="width: 150px; height: 150px;">
+                            <!-- Circular progress indicator would be implemented with JavaScript -->
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <h2 class="display-4 fw-bold mb-0">{{ overall_percentage|round|int }}%</h2>
+                                <p class="text-muted mb-0">Attendance</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Present/Total</th>
+                                        <th>Percentage</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for course in course_attendance %}
+                                    <tr>
+                                        <td>{{ course.course_code }}</td>
+                                        <td>{{ course.present_count }}/{{ course.total_classes }}</td>
+                                        <td>{{ course.attendance_percentage|round|int }}%</td>
+                                        <td>
+                                            {% if course.status == 'good' %}
+                                                <span class="attendance-status good">Good</span>
+                                            {% else %}
+                                                <span class="attendance-status bad">Needs Improvement</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Classes -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-calendar-day me-2"></i>Today's Classes
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if todays_timetable %}
+                    <div class="list-group">
+                        {% for class in todays_timetable %}
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1">{{ class.course_code }} - {{ class.course_name }}</h5>
+                                        <p class="mb-1 text-muted">
+                                            <i class="fas fa-clock me-1"></i>{{ class.start_time }} - {{ class.end_time }}
+                                            <i class="fas fa-map-marker-alt ms-3 me-1"></i>{{ class.room }}
+                                            <i class="fas fa-user ms-3 me-1"></i>{{ class.faculty_name }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        {% if class.attendance_marked %}
+                                            {% if class.is_present %}
+                                                <span class="badge bg-success">Present</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Absent</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">Not Marked</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-check text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">No classes scheduled for today</h5>
+                        <p>Enjoy your day!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-link me-2"></i>Quick Links
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <div class="col">
+                        <a href="{{ url_for('student.courses') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-book fs-1 text-primary"></i>
+                                    </div>
+                                    <h5 class="card-title">My Courses</h5>
+                                    <p class="card-text text-muted">View all your enrolled courses and schedules</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('student.attendance') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-chart-bar fs-1 text-success"></i>
+                                    </div>
+                                    <h5 class="card-title">Attendance Report</h5>
+                                    <p class="card-text text-muted">View detailed attendance statistics for all courses</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('student.profile') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-info bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-user fs-1 text-info"></i>
+                                    </div>
+                                    <h5 class="card-title">My Profile</h5>
+                                    <p class="card-text text-muted">View and manage your personal information</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize attendance circle with percentage value
+    document.addEventListener('DOMContentLoaded', function() {
+        const percentage = {{ overall_percentage|round|int }};
+        const progressCircle = document.querySelector('.progress-circle');
+        
+        if (progressCircle) {
+            // Create SVG for circular progress
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '150');
+            svg.setAttribute('height', '150');
+            svg.setAttribute('viewBox', '0 0 100 100');
+            
+            // Background circle
+            const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            bgCircle.setAttribute('cx', '50');
+            bgCircle.setAttribute('cy', '50');
+            bgCircle.setAttribute('r', '45');
+            bgCircle.setAttribute('fill', 'none');
+            bgCircle.setAttribute('stroke', '#e9ecef');
+            bgCircle.setAttribute('stroke-width', '8');
+            
+            // Progress circle
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', '50');
+            circle.setAttribute('cy', '50');
+            circle.setAttribute('r', '45');
+            circle.setAttribute('fill', 'none');
+            circle.setAttribute('stroke', percentage >= 75 ? '#2ecc71' : '#e74c3c');
+            circle.setAttribute('stroke-width', '8');
+            circle.setAttribute('stroke-dasharray', `${2 * Math.PI * 45}`);
+            circle.setAttribute('stroke-dashoffset', `${2 * Math.PI * 45 * (1 - percentage / 100)}`);
+            circle.setAttribute('transform', 'rotate(-90 50 50)');
+            
+            svg.appendChild(bgCircle);
+            svg.appendChild(circle);
+            progressCircle.prepend(svg);
+        }
+    });
+</script>
+{% endblock %}

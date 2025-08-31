@@ -1,0 +1,275 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-user-circle me-2"></i>My Profile
+        </h1>
+        <p class="lead">View and manage your personal information</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Profile Information -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-id-card me-2"></i>Personal Information
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="avatar-circle mb-3 mx-auto">
+                        <span class="avatar-initials">{{ current_user.name[:1] }}</span>
+                    </div>
+                    <h3 class="mb-0">{{ current_user.name }}</h3>
+                    <p class="text-muted">{{ current_user.email }}</p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Roll Number</label>
+                        <p>{{ current_user.roll_number }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Department</label>
+                        <p>{{ current_user.department }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Year</label>
+                        <p>{{ current_user.year }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Face Biometric Status</label>
+                        {% if has_face_data %}
+                            <p><span class="badge bg-success">Registered</span></p>
+                        {% else %}
+                            <p><span class="badge bg-warning text-dark">Not Registered</span></p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Account Status</label>
+                        {% if current_user.is_approved %}
+                            <p><span class="badge bg-success">Approved</span></p>
+                        {% else %}
+                            <p><span class="badge bg-warning text-dark">Pending Approval</span></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Form -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-key me-2"></i>Change Password
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('student.change_password') }}">
+                    {{ password_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ password_form.current_password.label(class="form-label") }}
+                        {{ password_form.current_password(class="form-control") }}
+                        {% if password_form.current_password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in password_form.current_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ password_form.new_password.label(class="form-label") }}
+                        {{ password_form.new_password(class="form-control") }}
+                        {% if password_form.new_password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in password_form.new_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ password_form.confirm_password.label(class="form-label") }}
+                        {{ password_form.confirm_password(class="form-control") }}
+                        {% if password_form.confirm_password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in password_form.confirm_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        {{ password_form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Face Biometric -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-camera me-2"></i>Update Face Biometric
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Important:</strong> Updating your face biometric data will require admin approval before it becomes active. You will need to wait for approval after submission.
+                        </div>
+                        <form method="POST" action="{{ url_for('student.update_face') }}" id="updateFaceForm">
+                            {{ face_form.hidden_tag() }}
+                            {{ face_form.face_data }}
+                            <div class="mb-3">
+                                <button type="button" id="startCamera" class="btn btn-outline-primary">
+                                    <i class="fas fa-camera me-2"></i>Start Camera
+                                </button>
+                                <button type="button" id="captureImage" class="btn btn-primary" disabled>
+                                    <i class="fas fa-camera-retro me-2"></i>Capture
+                                </button>
+                            </div>
+                            <div class="d-grid">
+                                {{ face_form.submit(class="btn btn-success", disabled=True, id="submitFaceData") }}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <div id="cameraContainer" class="mb-3 d-none">
+                                <video id="video" width="100%" autoplay></video>
+                            </div>
+                            <div id="captureContainer" class="mb-3 d-none">
+                                <canvas id="canvas" width="400" height="300"></canvas>
+                            </div>
+                            <div id="faceStatus" class="alert d-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        background-color: #0d6efd;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .avatar-initials {
+        color: white;
+        font-size: 42px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Camera functionality
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const startCameraBtn = document.getElementById('startCamera');
+        const captureBtn = document.getElementById('captureImage');
+        const submitBtn = document.getElementById('submitFaceData');
+        const faceStatus = document.getElementById('faceStatus');
+        const faceDataInput = document.getElementById('face_data');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const captureContainer = document.getElementById('captureContainer');
+        let stream = null;
+
+        // Start camera
+        startCameraBtn.addEventListener('click', async function() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                cameraContainer.classList.remove('d-none');
+                captureBtn.disabled = false;
+                startCameraBtn.disabled = true;
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                faceStatus.textContent = 'Error accessing camera. Please check camera permissions.';
+                faceStatus.classList.add('alert-danger');
+                faceStatus.classList.remove('d-none');
+            }
+        });
+
+        // Capture image
+        captureBtn.addEventListener('click', function() {
+            // Draw the video frame on the canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Convert canvas to base64 image
+            const imageData = canvas.toDataURL('image/jpeg');
+            
+            // Stop the camera stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            // Hide video, show canvas
+            cameraContainer.classList.add('d-none');
+            captureContainer.classList.remove('d-none');
+            
+            // Store the image data in the hidden form field
+            faceDataInput.value = imageData;
+            
+            // Validate the face
+            validateFace(imageData);
+        });
+
+        // Validate if the image contains a face
+        function validateFace(imageData) {
+            fetch('{{ url_for("auth.capture_face") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image_data: imageData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    faceStatus.textContent = 'Face detected successfully! You can now submit the form.';
+                    faceStatus.classList.add('alert-success');
+                    faceStatus.classList.remove('alert-danger', 'd-none');
+                    submitBtn.disabled = false;
+                } else {
+                    faceStatus.textContent = data.message || 'No face detected. Please try again.';
+                    faceStatus.classList.add('alert-danger');
+                    faceStatus.classList.remove('alert-success', 'd-none');
+                    submitBtn.disabled = true;
+                    startCameraBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error validating face:', error);
+                faceStatus.textContent = 'Error validating face. Please try again.';
+                faceStatus.classList.add('alert-danger');
+                faceStatus.classList.remove('alert-success', 'd-none');
+                startCameraBtn.disabled = false;
+            });
+        }
+    });
+</script>
+{% endblock %}

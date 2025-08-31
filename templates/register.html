@@ -1,0 +1,516 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-lg">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h2 class="mb-0"><i class="fas fa-user-plus me-2"></i>Student Registration</h2>
+            </div>
+            <div class="card-body p-4">
+                <!-- Registration steps progress -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-center">
+                        <div class="step-wizard">
+                            <ul class="step-wizard-list">
+                                <li class="step-wizard-item current-item">
+                                    <span class="progress-count">1</span>
+                                    <span class="progress-label">Personal Info</span>
+                                </li>
+                                <li class="step-wizard-item">
+                                    <span class="progress-count">2</span>
+                                    <span class="progress-label">Face Capture</span>
+                                </li>
+                                <li class="step-wizard-item">
+                                    <span class="progress-count">3</span>
+                                    <span class="progress-label">Review</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="" id="registration-form">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Step 1: Personal Information -->
+                    <div id="step1" class="registration-step">
+                        <h4 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>Personal Information</h4>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.name.label(class="form-label") }}
+                                {% if form.name.errors %}
+                                    {{ form.name(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.name.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.name(class="form-control", placeholder="Enter your full name") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.email.label(class="form-label") }}
+                                {% if form.email.errors %}
+                                    {{ form.email(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.email(class="form-control", placeholder="Enter your email") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                {{ form.roll_number.label(class="form-label") }}
+                                {% if form.roll_number.errors %}
+                                    {{ form.roll_number(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.roll_number.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.roll_number(class="form-control", placeholder="Enter your roll number") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.department.label(class="form-label") }}
+                                {% if form.department.errors %}
+                                    {{ form.department(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.department.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.department(class="form-control") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.year.label(class="form-label") }}
+                                {% if form.year.errors %}
+                                    {{ form.year(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.year.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.year(class="form-control") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.password.label(class="form-label") }}
+                                {% if form.password.errors %}
+                                    {{ form.password(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.password.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.password(class="form-control", placeholder="Enter a password") }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.confirm_password.label(class="form-label") }}
+                                {% if form.confirm_password.errors %}
+                                    {{ form.confirm_password(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.confirm_password.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-primary next-step" data-step="2">
+                                Next <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Face Capture -->
+                    <div id="step2" class="registration-step d-none">
+                        <h4 class="mb-3 text-primary"><i class="fas fa-camera me-2"></i>Face Capture</h4>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Your face image will be used for attendance verification through facial recognition.
+                            Please ensure you're in a well-lit area and looking directly at the camera.
+                        </div>
+                        
+                        <div id="camera-error" class="alert alert-danger d-none">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Unable to access camera. Please ensure camera permissions are granted and try again.
+                        </div>
+                        
+                        <div class="camera-container mb-4 mx-auto" style="max-width: 500px;">
+                            <video id="video-capture" class="camera-feed rounded" autoplay></video>
+                            <canvas id="canvas-capture" class="d-none rounded" width="640" height="480"></canvas>
+                            <img id="preview-image" class="d-none camera-feed rounded" alt="Captured face">
+                        </div>
+                        
+                        <div class="text-center mb-3">
+                            <button type="button" id="capture-btn" class="btn btn-primary">
+                                <i class="fas fa-camera me-2"></i>Capture Face
+                            </button>
+                            <button type="button" id="retake-btn" class="btn btn-secondary d-none">
+                                <i class="fas fa-redo me-2"></i>Retake
+                            </button>
+                        </div>
+                        
+                        {{ form.face_data(id="face_data", class="d-none") }}
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary prev-step" data-step="1">
+                                <i class="fas fa-arrow-left me-2"></i>Previous
+                            </button>
+                            <button type="button" class="btn btn-primary next-step" data-step="3" id="face-next-btn" disabled>
+                                Next <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Review Information -->
+                    <div id="step3" class="registration-step d-none">
+                        <h4 class="mb-3 text-primary"><i class="fas fa-check-circle me-2"></i>Review Your Information</h4>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Please review your information carefully. Once submitted, your account will be pending admin approval.
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Name:</strong> <span id="review-name"></span></p>
+                                        <p><strong>Email:</strong> <span id="review-email"></span></p>
+                                        <p><strong>Roll Number:</strong> <span id="review-roll"></span></p>
+                                        <p><strong>Department:</strong> <span id="review-dept"></span></p>
+                                        <p><strong>Year:</strong> <span id="review-year"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="fas fa-camera me-2"></i>Face Image</h5>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <img id="review-face" class="img-fluid rounded" alt="Your face image" style="max-height: 200px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary prev-step" data-step="2">
+                                <i class="fas fa-arrow-left me-2"></i>Previous
+                            </button>
+                            {{ form.submit(class="btn btn-success") }}
+                        </div>
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="row">
+                    <div class="col text-center">
+                        <small class="text-muted">
+                            Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Step wizard styling */
+    .step-wizard {
+        width: 100%;
+        max-width: 600px;
+    }
+    .step-wizard-list {
+        background: #f9f9f9;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        color: #333;
+        list-style-type: none;
+        border-radius: 10px;
+        display: flex;
+        padding: 15px 0;
+        position: relative;
+        z-index: 10;
+    }
+    .step-wizard-item {
+        padding: 0 20px;
+        flex-basis: 0;
+        -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+        flex-grow: 1;
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        position: relative;
+    }
+    .step-wizard-item + .step-wizard-item:after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 19px;
+        background: #3498db;
+        width: 100%;
+        height: 2px;
+        transform: translateX(-50%);
+        z-index: -10;
+    }
+    .progress-count {
+        height: 40px;
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: 600;
+        margin: 0 auto;
+        position: relative;
+        z-index: 10;
+        color: #3498db;
+        background: #fff;
+        border: 2px solid #3498db;
+    }
+    .progress-label {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+    .current-item .progress-count {
+        background-color: #3498db;
+        color: #fff;
+    }
+    .filled .progress-count {
+        background-color: #2ecc71;
+        border-color: #2ecc71;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize face capture functionality
+        initFaceCapture();
+        
+        // Multi-step form navigation
+        const nextButtons = document.querySelectorAll('.next-step');
+        const prevButtons = document.querySelectorAll('.prev-step');
+        const steps = document.querySelectorAll('.step-wizard-item');
+        
+        nextButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const currentStep = parseInt(this.getAttribute('data-step'));
+                const currentStepElement = document.getElementById(`step${currentStep - 1}`);
+                const nextStepElement = document.getElementById(`step${currentStep}`);
+                
+                // Basic validation for step 1
+                if (currentStep === 2) {
+                    const name = document.getElementById('name').value;
+                    const email = document.getElementById('email').value;
+                    const roll = document.getElementById('roll_number').value;
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirm_password').value;
+                    
+                    if (!name || !email || !roll || !password || !confirmPassword) {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        alert('Passwords do not match.');
+                        return;
+                    }
+                }
+                
+                // Move to next step
+                currentStepElement.classList.add('d-none');
+                nextStepElement.classList.remove('d-none');
+                
+                // Update progress indicator
+                steps.forEach((step, index) => {
+                    if (index < currentStep) {
+                        step.classList.add('filled');
+                    }
+                    if (index === currentStep) {
+                        step.classList.add('current-item');
+                    }
+                    if (index === currentStep - 1) {
+                        step.classList.remove('current-item');
+                    }
+                });
+                
+                // Populate review step
+                if (currentStep === 3) {
+                    document.getElementById('review-name').textContent = document.getElementById('name').value;
+                    document.getElementById('review-email').textContent = document.getElementById('email').value;
+                    document.getElementById('review-roll').textContent = document.getElementById('roll_number').value;
+                    document.getElementById('review-dept').textContent = document.getElementById('department').options[document.getElementById('department').selectedIndex].text;
+                    document.getElementById('review-year').textContent = document.getElementById('year').options[document.getElementById('year').selectedIndex].text;
+                    
+                    // Set face image for review
+                    const faceData = document.getElementById('face_data').value;
+                    if (faceData) {
+                        document.getElementById('review-face').src = faceData;
+                    }
+                }
+            });
+        });
+        
+        prevButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const prevStep = parseInt(this.getAttribute('data-step'));
+                const currentStepElement = document.getElementById(`step${prevStep + 1}`);
+                const prevStepElement = document.getElementById(`step${prevStep}`);
+                
+                // Move to previous step
+                currentStepElement.classList.add('d-none');
+                prevStepElement.classList.remove('d-none');
+                
+                // Update progress indicator
+                steps.forEach((step, index) => {
+                    if (index === prevStep) {
+                        step.classList.add('current-item');
+                    }
+                    if (index === prevStep + 1) {
+                        step.classList.remove('current-item');
+                        step.classList.remove('filled');
+                    }
+                });
+            });
+        });
+        
+        // Enable next button after face capture
+        const faceNextBtn = document.getElementById('face-next-btn');
+        const faceData = document.getElementById('face_data');
+        
+        // Check for changes to face_data field
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === "attributes" && mutation.attributeName === "value") {
+                    if (faceData.value) {
+                        faceNextBtn.disabled = false;
+                    } else {
+                        faceNextBtn.disabled = true;
+                    }
+                }
+            });
+        });
+        
+        observer.observe(faceData, { attributes: true });
+    });
+    
+    // Extend the faceCapture functionality to enable the next button
+    function initFaceCapture() {
+        const video = document.getElementById('video-capture');
+        const canvas = document.getElementById('canvas-capture');
+        const captureBtn = document.getElementById('capture-btn');
+        const retakeBtn = document.getElementById('retake-btn');
+        const faceDataInput = document.getElementById('face_data');
+        const previewImage = document.getElementById('preview-image');
+        const faceNextBtn = document.getElementById('face-next-btn');
+        
+        if (!video || !canvas) return;
+        
+        // Start camera
+        setupCamera(video);
+        
+        // Capture button event
+        if (captureBtn) {
+            captureBtn.addEventListener('click', function() {
+                const imageData = captureImage(video, canvas);
+                
+                // Set the face data in the hidden form field
+                if (faceDataInput) {
+                    faceDataInput.value = imageData;
+                    // Trigger a change event to notify observers
+                    const event = new Event('change', { bubbles: true });
+                    faceDataInput.dispatchEvent(event);
+                }
+                
+                // Display the captured image
+                if (previewImage) {
+                    previewImage.src = imageData;
+                    previewImage.classList.remove('d-none');
+                }
+                
+                // Hide video, show preview
+                video.classList.add('d-none');
+                canvas.classList.remove('d-none');
+                
+                // Hide capture button, show retake button
+                captureBtn.classList.add('d-none');
+                if (retakeBtn) {
+                    retakeBtn.classList.remove('d-none');
+                }
+                
+                // Enable next button
+                if (faceNextBtn) {
+                    faceNextBtn.disabled = false;
+                }
+            });
+        }
+        
+        // Retake button event
+        if (retakeBtn) {
+            retakeBtn.addEventListener('click', function() {
+                // Clear face data
+                if (faceDataInput) {
+                    faceDataInput.value = '';
+                    // Trigger a change event to notify observers
+                    const event = new Event('change', { bubbles: true });
+                    faceDataInput.dispatchEvent(event);
+                }
+                
+                // Show video, hide preview
+                video.classList.remove('d-none');
+                canvas.classList.add('d-none');
+                if (previewImage) {
+                    previewImage.classList.add('d-none');
+                }
+                
+                // Show capture button, hide retake button
+                captureBtn.classList.remove('d-none');
+                retakeBtn.classList.add('d-none');
+                
+                // Disable next button
+                if (faceNextBtn) {
+                    faceNextBtn.disabled = true;
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Take Attendance</h2>
+        <div>
+            <a href="{{ url_for('faculty.manual_attendance', timetable_id=timetable.id) }}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Manual Attendance
+            </a>
+            <a href="{{ url_for('faculty.auto_attendance', timetable_id=timetable.id) }}" class="btn btn-success">
+                <i class="fas fa-camera"></i> Auto Attendance
+            </a>
+        </div>
+    </div>
+
+    <!-- Course Info -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Session Details</h5>
+            <p class="card-text">
+                <strong>Course:</strong> {{ course.name }} ({{ course.course_code }})<br>
+                <strong>Room:</strong> {{ timetable.room }}<br>
+                <strong>Time:</strong> {{ timetable.start_time.strftime('%H:%M') }} - {{ timetable.end_time.strftime('%H:%M') }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Attendance List -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Attendance Records</h5>
+            {% if student_attendance %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Roll Number</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in student_attendance %}
+                                <tr>
+                                    <td>{{ record.roll_number }}</td>
+                                    <td>{{ record.student_name }}</td>
+                                    <td>
+                                        <span class="badge {% if record.is_present %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ 'Present' if record.is_present else 'Absent' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ record.time_in if record.time_in else '-' }}</td>
+                                    <td>{{ record.time_out if record.time_out else '-' }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary toggle-attendance" 
+                                                data-attendance-id="{{ record.attendance_id }}"
+                                                data-student-name="{{ record.student_name }}"
+                                                data-is-present="{{ '1' if record.is_present else '0' }}">
+                                            <i class="fas {% if record.is_present %}fa-times{% else %}fa-check{% endif %}"></i>
+                                            {{ 'Mark Absent' if record.is_present else 'Mark Present' }}
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No students found for this course.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/attendance.js') }}"></script>
+{% endblock %} 

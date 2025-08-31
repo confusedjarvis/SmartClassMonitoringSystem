@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>My Attendance</h2>
+
+    <!-- Course Selection -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Select Course</h5>
+            <form method="get" class="form-inline">
+                <div class="form-group">
+                    <select name="course_id" class="form-control" onchange="this.form.submit()">
+                        {% for course in courses %}
+                            <option value="{{ course.id }}" {% if selected_course and selected_course.id == course.id %}selected{% endif %}>
+                                {{ course.course_code }} - {{ course.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if selected_course %}
+        <!-- Attendance Statistics -->
+        {% if attendance_stats %}
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Attendance Overview</h5>
+                        <p class="card-text">
+                            <strong>Total Classes:</strong> {{ attendance_stats.total_count }}<br>
+                            <strong>Classes Attended:</strong> {{ attendance_stats.present_count }}<br>
+                            <strong>Attendance Percentage:</strong> {{ "%.2f"|format(attendance_stats.attendance_percentage) }}%<br>
+                            <strong>Status:</strong> 
+                            <span class="badge {% if attendance_stats.status == 'Good' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ attendance_stats.status }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Monthly Attendance</h5>
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Attendance Records -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Attendance Records</h5>
+                {% if attendance_records %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>Status</th>
+                                    <th>Time In</th>
+                                    <th>Time Out</th>
+                                    <th>Room</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_records %}
+                                    <tr>
+                                        <td>{{ record.date }}</td>
+                                        <td>{{ record.day }}</td>
+                                        <td>
+                                            <span class="badge {% if record.is_present %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ 'Present' if record.is_present else 'Absent' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ record.time_in if record.time_in else '-' }}</td>
+                                        <td>{{ record.time_out if record.time_out else '-' }}</td>
+                                        <td>{{ record.room }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No attendance records found for this course.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You are not enrolled in any courses yet.
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if chart_data %}
+    var ctx = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.labels | tojson }},
+            datasets: [{
+                label: 'Present',
+                data: {{ chart_data.present | tojson }},
+                backgroundColor: 'rgba(40, 167, 69, 0.5)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Absent',
+                data: {{ chart_data.absent | tojson }},
+                backgroundColor: 'rgba(220, 53, 69, 0.5)',
+                borderColor: 'rgba(220, 53, 69, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %} 

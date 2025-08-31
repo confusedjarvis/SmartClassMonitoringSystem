@@ -1,0 +1,203 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>Faculty Dashboard
+        </h1>
+        <p class="lead">Welcome back, {{ current_user.name }}!</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card primary">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                        <h5 class="card-title text-muted text-uppercase">Today</h5>
+                        <h2 class="card-text">{{ today }}</h2>
+                    </div>
+                    <div class="col-3 text-end">
+                        <i class="fas fa-calendar-day icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card success">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                        <h5 class="card-title text-muted text-uppercase">Total Students</h5>
+                        <h2 class="card-text">{{ total_students }}</h2>
+                    </div>
+                    <div class="col-3 text-end">
+                        <i class="fas fa-user-graduate icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card warning">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                        <h5 class="card-title text-muted text-uppercase">Total Courses</h5>
+                        <h2 class="card-text">{{ total_courses }}</h2>
+                    </div>
+                    <div class="col-3 text-end">
+                        <i class="fas fa-book icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Class Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-chalkboard me-2"></i>Current Class
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if current_class %}
+                    {% set course = current_class.course %}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="text-primary mb-0">{{ course.course_code }} - {{ course.name }}</h5>
+                            <p class="text-muted">
+                                <i class="fas fa-clock me-1"></i>{{ current_class.start_time.strftime('%H:%M') }} - {{ current_class.end_time.strftime('%H:%M') }}
+                                <i class="fas fa-map-marker-alt ms-3 me-1"></i>{{ current_class.room }}
+                            </p>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('faculty.start_session', timetable_id=current_class.id) }}" class="btn btn-primary">
+                                <i class="fas fa-play-circle me-2"></i>Start Session
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-coffee text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">No classes scheduled right now</h5>
+                        <p>Check your upcoming classes below.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Classes -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-calendar-alt me-2"></i>Upcoming Classes Today
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if upcoming_classes %}
+                    <ul class="list-group list-group-flush">
+                        {% for class_session in upcoming_classes %}
+                            {% set course = class_session.course %}
+                            <li class="list-group-item border-0 ps-0">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <span class="text-primary fw-bold">
+                                            {{ class_session.start_time.strftime('%H:%M') }} - {{ class_session.end_time.strftime('%H:%M') }}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <span class="fw-bold">{{ course.course_code }} - {{ course.name }}</span>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ class_session.room }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-md-end">
+                                        <a href="{{ url_for('faculty.start_session', timetable_id=class_session.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-play-circle me-1"></i>Start
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">No more classes scheduled for today</h5>
+                        <p>Enjoy the rest of your day!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-link me-2"></i>Quick Actions
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <div class="col">
+                        <a href="{{ url_for('faculty.courses') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-book fs-1 text-primary"></i>
+                                    </div>
+                                    <h5 class="card-title">My Courses</h5>
+                                    <p class="card-text text-muted">View and manage all your assigned courses</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('faculty.attendance_report') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-chart-bar fs-1 text-success"></i>
+                                    </div>
+                                    <h5 class="card-title">Attendance Reports</h5>
+                                    <p class="card-text text-muted">View attendance statistics and identify students with low attendance</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="#" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-warning bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-mobile-alt fs-1 text-warning"></i>
+                                    </div>
+                                    <h5 class="card-title">Engagement Analytics</h5>
+                                    <p class="card-text text-muted">Monitor student engagement and phone usage during classes</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

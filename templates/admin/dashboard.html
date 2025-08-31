@@ -1,0 +1,403 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold text-dark">
+            <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+        </h1>
+        <p class="mb-0">Welcome back, Admin!</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-start border-5 border-primary shadow h-100">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                        <h5 class="card-title text-muted text-uppercase">STUDENTS</h5>
+                        <h2 class="card-text">{{ student_count }}</h2>
+                    </div>
+                    <div class="col-3 text-end">
+                        <i class="fas fa-user-graduate text-gray-300 fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-start border-5 border-success shadow h-100">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                        <h5 class="card-title text-muted text-uppercase">FACULTY</h5>
+                        <h2 class="card-text">{{ faculty_count }}</h2>
+                    </div>
+                    <div class="col-3 text-end">
+                        <i class="fas fa-chalkboard-teacher text-gray-300 fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-start border-5 border-warning shadow h-100">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                        <h5 class="card-title text-muted text-uppercase">COURSES</h5>
+                        <h2 class="card-text">{{ course_count }}</h2>
+                    </div>
+                    <div class="col-3 text-end">
+                        <i class="fas fa-book text-gray-300 fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-start border-5 border-danger shadow h-100">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                        <h5 class="card-title text-muted text-uppercase">PENDING APPROVALS</h5>
+                        <h2 class="card-text">{{ pending_approvals }}</h2>
+                    </div>
+                    <div class="col-3 text-end">
+                        <i class="fas fa-exclamation-circle text-gray-300 fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Registrations -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-user-plus me-2"></i>Recent Student Registrations
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if recent_students %}
+                    <div class="list-group list-group-flush">
+                        {% for student in recent_students %}
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ student.name }}</h6>
+                                        <p class="mb-1 text-muted small">
+                                            <i class="fas fa-envelope me-1"></i>{{ student.email }}
+                                            <br>
+                                            <i class="fas fa-id-card me-1"></i>{{ student.roll_number }}
+                                            <i class="fas fa-building ms-3 me-1"></i>{{ student.department }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        {% if not student.is_approved %}
+                                            <form method="POST" action="{{ url_for('admin.approve_user', user_type='student', user_id=student.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="fas fa-check me-1"></i>Approve
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-graduate text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">No recent student registrations</h5>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="{{ url_for('admin.students') }}" class="btn btn-sm btn-outline-primary">View All Students</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success bg-opacity-10">
+                <h4 class="mb-0 text-success">
+                    <i class="fas fa-user-tie me-2"></i>Recent Faculty Registrations
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if recent_faculty %}
+                    <div class="list-group list-group-flush">
+                        {% for faculty in recent_faculty %}
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ faculty.name }}</h6>
+                                        <p class="mb-1 text-muted small">
+                                            <i class="fas fa-envelope me-1"></i>{{ faculty.email }}
+                                            <br>
+                                            <i class="fas fa-building me-1"></i>{{ faculty.department }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        {% if not faculty.is_approved %}
+                                            <form method="POST" action="{{ url_for('admin.approve_user', user_type='faculty', user_id=faculty.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="fas fa-check me-1"></i>Approve
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chalkboard-teacher text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">No recent faculty registrations</h5>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="{{ url_for('admin.faculties') }}" class="btn btn-sm btn-outline-success">View All Faculty</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Biometric Updates Needing Approval -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-warning bg-opacity-10">
+                <h4 class="mb-0 text-warning">
+                    <i class="fas fa-fingerprint me-2"></i>Face Biometric Updates Pending Approval
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if biometric_updates %}
+                    <div class="list-group list-group-flush">
+                        {% for student in biometric_updates %}
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ student.name }}</h6>
+                                        <p class="mb-1 text-muted small">
+                                            <i class="fas fa-envelope me-1"></i>{{ student.email }}
+                                            <i class="fas fa-id-card ms-3 me-1"></i>{{ student.roll_number }}
+                                            <i class="fas fa-building ms-3 me-1"></i>{{ student.department }}
+                                            <span class="badge bg-warning text-dark ms-2">Updated Biometric</span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <form method="POST" action="{{ url_for('admin.approve_user', user_type='student', user_id=student.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="fas fa-check me-1"></i>Approve
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-fingerprint text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">No biometric updates pending approval</h5>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Section -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary bg-opacity-10">
+                <h4 class="mb-0 text-primary">
+                    <i class="fas fa-user-plus me-2"></i>Add New Student
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.add_student') }}">
+                    {{ add_student_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ add_student_form.name.label(class="form-label") }}
+                        {{ add_student_form.name(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ add_student_form.email.label(class="form-label") }}
+                        {{ add_student_form.email(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ add_student_form.roll_number.label(class="form-label") }}
+                        {{ add_student_form.roll_number(class="form-control") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ add_student_form.department.label(class="form-label") }}
+                            {{ add_student_form.department(class="form-select") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ add_student_form.year.label(class="form-label") }}
+                            {{ add_student_form.year(class="form-select") }}
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        A temporary password will be generated using the first four characters of the name and last four characters of the roll number.
+                    </div>
+                    <div class="d-grid">
+                        {{ add_student_form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-success bg-opacity-10">
+                <h4 class="mb-0 text-success">
+                    <i class="fas fa-user-plus me-2"></i>Add New Faculty
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.add_faculty') }}">
+                    {{ add_faculty_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ add_faculty_form.name.label(class="form-label") }}
+                        {{ add_faculty_form.name(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ add_faculty_form.email.label(class="form-label") }}
+                        {{ add_faculty_form.email(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ add_faculty_form.department.label(class="form-label") }}
+                        {{ add_faculty_form.department(class="form-select") }}
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        A temporary password will be generated using the first four characters of the name and last four characters of the department.
+                    </div>
+                    <div class="d-grid">
+                        {{ add_faculty_form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-dark bg-opacity-10">
+                <h4 class="mb-0 text-dark">
+                    <i class="fas fa-link me-2"></i>Quick Actions
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <div class="col">
+                        <a href="{{ url_for('admin.students') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-user-graduate fs-1 text-primary"></i>
+                                    </div>
+                                    <h5 class="card-title">Manage Students</h5>
+                                    <p class="card-text text-muted">Approve, edit, or remove student accounts</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('admin.faculties') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-chalkboard-teacher fs-1 text-success"></i>
+                                    </div>
+                                    <h5 class="card-title">Manage Faculty</h5>
+                                    <p class="card-text text-muted">Approve, edit, or remove faculty accounts</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('admin.courses') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-warning bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-book fs-1 text-warning"></i>
+                                    </div>
+                                    <h5 class="card-title">Manage Courses</h5>
+                                    <p class="card-text text-muted">Add, edit, or remove courses from the system</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
+                    <div class="col">
+                        <a href="{{ url_for('admin.timetable') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-info bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-calendar-alt fs-1 text-info"></i>
+                                    </div>
+                                    <h5 class="card-title">Manage Timetable</h5>
+                                    <p class="card-text text-muted">Set up and modify class schedules</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('admin.reset_password') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-danger bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-key fs-1 text-danger"></i>
+                                    </div>
+                                    <h5 class="card-title">Reset Password</h5>
+                                    <p class="card-text text-muted">Reset password for students and faculty</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('admin.admin_logs') }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-secondary bg-opacity-10 p-3 d-inline-block mb-3">
+                                        <i class="fas fa-history fs-1 text-secondary"></i>
+                                    </div>
+                                    <h5 class="card-title">Admin Logs</h5>
+                                    <p class="card-text text-muted">View system activity logs</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
