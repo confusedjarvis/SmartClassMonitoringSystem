@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: smart-class-monitoring-system
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        value: your_secret_key_here
+      - key: SQLALCHEMY_DATABASE_URI
+        value: sqlite:///site.db
+      - key: GOOGLE_CLIENT_ID
+        value: your_google_client_id
+      - key: GOOGLE_CLIENT_SECRET
+        value: your_google_client_secret
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USE_TLS
+        value: True
+      - key: MAIL_USERNAME
+        value: your_email@gmail.com
+      - key: MAIL_PASSWORD
+        value: your_email_password
+    pythonVersion: 3.12
