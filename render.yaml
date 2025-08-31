@@ -23,4 +23,4 @@ services:
         value: your_email@gmail.com
       - key: MAIL_PASSWORD
         value: your_email_password
-    pythonVersion: 3.12
+    pythonVersion: 3.12.3
