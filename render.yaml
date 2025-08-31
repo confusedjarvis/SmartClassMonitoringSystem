@@ -16,11 +16,10 @@ services:
       - key: MAIL_SERVER
         value: smtp.gmail.com
       - key: MAIL_PORT
-        value: 587
+        value: "587"
       - key: MAIL_USE_TLS
-        value: True
+        value: "True"
       - key: MAIL_USERNAME
         value: your_email@gmail.com
       - key: MAIL_PASSWORD
         value: your_email_password
-    pythonVersion: 3.12.3
